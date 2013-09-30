@@ -96,6 +96,9 @@ $(O)/i_sound.o:	efi/i_sound.c
 $(O)/i_net.o:	efi/i_net.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(O)/i_system.o: efi/i_system.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 #$(O)/i_video.o:	efi/i_video.c
 #	$(CC) $(CFLAGS) -c $< -o $@
 
