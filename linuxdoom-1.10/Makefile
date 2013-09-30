@@ -8,7 +8,7 @@ CC=  gcc  # gcc or g++
 
 CFLAGS=-g -Wall -DNORMALUNIX -DLINUX -I. # -DUSEASM 
 LDFLAGS=-L/usr/X11R6/lib
-LIBS=-lXext -lX11 -lm
+LIBS=-lm
 
 # subdirectory for objects
 O=linux
@@ -99,8 +99,8 @@ $(O)/i_net.o:	efi/i_net.c
 $(O)/i_system.o: efi/i_system.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-#$(O)/i_video.o:	efi/i_video.c
-#	$(CC) $(CFLAGS) -c $< -o $@
+$(O)/i_video.o:	efi/i_video.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 #############################################################
 #
