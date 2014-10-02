@@ -26,7 +26,7 @@ static const char
 rcsid[] = "$Id: w_wad.c,v 1.5 1997/02/03 16:47:57 b1 Exp $";
 
 
-#ifdef NORMALUNIX
+//#ifdef NORMALUNIX
 #include <ctype.h>
 #include <sys/types.h>
 #include <string.h>
@@ -34,9 +34,9 @@ rcsid[] = "$Id: w_wad.c,v 1.5 1997/02/03 16:47:57 b1 Exp $";
 //#include <malloc.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <alloca.h>
+//#include <alloca.h>
 #define O_BINARY		0
-#endif
+//#endif
 
 #include "doomtype.h"
 #include "m_swap.h"
@@ -47,7 +47,6 @@ rcsid[] = "$Id: w_wad.c,v 1.5 1997/02/03 16:47:57 b1 Exp $";
 #pragma implementation "w_wad.h"
 #endif
 #include "w_wad.h"
-
 
 
 
@@ -160,7 +159,7 @@ void W_AddFile (char *filename)
 	reloadlump = numlumps;
     }
 		
-    if ( (handle = open (filename,O_RDONLY | O_BINARY)) == -1)
+    if ( (handle = open (filename,O_RDONLY | O_BINARY, S_IRWXU)) == -1)
     {
 	printf (" couldn't open %s\n",filename);
 	return;
@@ -246,7 +245,7 @@ void W_Reload (void)
     if (!reloadname)
 	return;
 		
-    if ( (handle = open (reloadname,O_RDONLY | O_BINARY)) == -1)
+    if ( (handle = open (reloadname,O_RDONLY | O_BINARY, S_IRWXU)) == -1)
 	I_Error ("W_Reload: couldn't open %s",reloadname);
 
     read (handle, &header, sizeof(header));
@@ -386,6 +385,7 @@ int W_CheckNumForName (char* name)
     }
 
     // TFB. Not found.
+    printf("W_CheckNumForName: lump not found for name %s\n", name8.s);
     return -1;
 }
 
@@ -447,7 +447,7 @@ W_ReadLump
     if (l->handle == -1)
     {
 	// reloadable file, so use open / read / close
-	if ( (handle = open (reloadname,O_RDONLY | O_BINARY)) == -1)
+	if ( (handle = open (reloadname,O_RDONLY | O_BINARY, S_IRWXU)) == -1)
 	    I_Error ("W_ReadLump: couldn't open %s",reloadname);
     }
     else

@@ -23,7 +23,7 @@
 
 
 
-int	mb_used = 6;
+int	mb_used = 20;
 
 
 void
@@ -63,11 +63,11 @@ byte* I_ZoneBase (int*	size)
 int  I_GetTime (void)
 {
     struct timeval	tp;
-    struct timezone	tzp;
+    //struct timezone	tzp;
     int			newtics;
     static int		basetime=0;
   
-    gettimeofday(&tp, &tzp);
+    gettimeofday(&tp, NULL);
     if (!basetime)
 	basetime = tp.tv_sec;
     newtics = (tp.tv_sec-basetime)*TICRATE + tp.tv_usec*TICRATE/1000000;
@@ -95,7 +95,10 @@ void I_Quit (void)
     I_ShutdownMusic();
     M_SaveDefaults ();
     I_ShutdownGraphics();
-    exit(0);
+
+    printf("I_Quit: locking\n");
+    while(1) ;
+    //exit(0);
 }
 
 void I_WaitVBL(int count)
@@ -140,12 +143,10 @@ void I_Error (char *error, ...)
 
     // Message first.
     va_start (argptr,error);
-    fprintf (stderr, "Error: ");
-    vfprintf (stderr,error,argptr);
-    fprintf (stderr, "\n");
+    printf ("Error: ");
+    vprintf (error,argptr);
+    printf ("\n");
     va_end (argptr);
-
-    fflush( stderr );
 
     // Shutdown. Here might be other errors.
     if (demorecording)
@@ -154,5 +155,33 @@ void I_Error (char *error, ...)
     D_QuitNetGame ();
     I_ShutdownGraphics();
     
-    exit(-1);
+	while(1) ;
+    //exit(-1);
 }
+
+///
+  
+extern
+INTN
+ShellAppMain (
+  IN UINTN Argc,
+  IN CHAR16 **Argv
+  );
+
+#include <Library/UefiBootServicesTableLib.h>
+#include <Library/SerialPortLib.h>
+#include <Protocol/LoadedImage.h>
+#include <Protocol/DevicePathToText.h>
+#include <Protocol/SimplePointer.h>
+
+EFI_STATUS UefiMain(EFI_HANDLE handle, EFI_SYSTEM_TABLE* st)
+{
+	const char* msg = "DOOM: testing serial port\n";
+	SerialPortInitialize();
+	SerialPortWrite(msg, strlen(msg));
+
+	const CHAR16* argv[] = {L"doom.exe", NULL};
+	return ShellAppMain(1, argv);
+}
+
+

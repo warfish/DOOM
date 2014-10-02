@@ -119,7 +119,7 @@ void Z_Init (void)
 //
 // Z_Free
 //
-void Z_Free (void* ptr)
+void _Z_Free (void* ptr)
 {
     memblock_t*		block;
     memblock_t*		other;
@@ -127,7 +127,11 @@ void Z_Free (void* ptr)
     block = (memblock_t *) ( (byte *)ptr - sizeof(memblock_t));
 
     if (block->id != ZONEID)
-	I_Error ("Z_Free: freed a pointer without ZONEID");
+	{
+		//printf("Z_Free: freed a pointer without ZONEID\n");
+		I_Error ("Z_Free: freed a pointer %p without ZONEID", ptr);
+		return ;
+	}
 		
     if (block->user > (void **)0x100)
     {
@@ -181,7 +185,7 @@ void Z_Free (void* ptr)
 
 
 void*
-Z_Malloc
+_Z_Malloc
 ( int		size,
   int		tag,
   void*		user )
@@ -192,7 +196,8 @@ Z_Malloc
     memblock_t* newblock;
     memblock_t*	base;
 
-    size = (size + 3) & ~3;
+    //size = (size + 3) & ~3;
+    size = (size + 0x7) & ~0x7;
     
     // scan through the block list,
     // looking for the first free block
@@ -465,3 +470,25 @@ int Z_FreeMemory (void)
     return free;
 }
 
+void Z_FreeDebug(void* ptr, const char* file, int line)
+{ 
+	char buf[1024] = {0};
+	snprintf(buf, 1024, "Z_Free(%p) at %s:%d\n", ptr, file, line);
+	SerialPortWrite(buf, strlen(buf));
+	_Z_Free(ptr);
+}
+ 
+void* Z_MallocDebug(int size, int tag, void* ptr, const char* file, int line)
+{ 
+	char buf[1024] = {0};
+	
+	snprintf(buf, 1024, "Z_Malloc at %s:%d\n", file, line);
+	SerialPortWrite(buf, strlen(buf));
+
+	void* res = _Z_Malloc(size, tag, ptr);
+	
+	snprintf(buf, 1024, "Z_Malloc at %s:%d returns %p\n", file, line, res);
+	SerialPortWrite(buf, strlen(buf));
+	
+	return res;
+} 

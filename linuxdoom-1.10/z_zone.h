@@ -45,8 +45,8 @@
 
 
 void	Z_Init (void);
-void*	Z_Malloc (int size, int tag, void *ptr);
-void    Z_Free (void *ptr);
+void*	_Z_Malloc (int size, int tag, void *ptr);
+void    _Z_Free (void *ptr);
 void    Z_FreeTags (int lowtag, int hightag);
 void    Z_DumpHeap (int lowtag, int hightag);
 void    Z_FileDumpHeap (FILE *f);
@@ -74,9 +74,25 @@ typedef struct memblock_s
       if (( (memblock_t *)( (byte *)(p) - sizeof(memblock_t)))->id!=0x1d4a11) \
 	  I_Error("Z_CT at "__FILE__":%i",__LINE__); \
 	  Z_ChangeTag2(p,t); \
-};
+} \
 
+//#define Z_DEBUG
 
+#ifdef Z_DEBUG
+#include <Library/SerialPortLib.h>
+
+void Z_FreeDebug(void* ptr, const char* file, int line);
+void* Z_MallocDebug(int size, int tag, void* ptr, const char* file, int line);
+
+#define Z_Free(_ptr_) Z_FreeDebug((_ptr_), __FILE__, __LINE__)
+#define Z_Malloc(_size_, _tag_, _ptr_) Z_MallocDebug((_size_), (_tag_), (_ptr_), __FILE__, __LINE__)
+
+#else
+
+#define Z_Free(_ptr_) _Z_Free((_ptr_))
+#define Z_Malloc(_size_, _tag_, _ptr_) _Z_Malloc((_size_), (_tag_), (_ptr_))
+
+#endif
 
 #endif
 //-----------------------------------------------------------------------------

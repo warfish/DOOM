@@ -649,6 +649,8 @@ void TryRunTics (void)
     realtics = entertic - oldentertics;
     oldentertics = entertic;
     
+	//printf("entertic = %d, realtics = %d, ticdup = %d\n", entertic, realtics, ticdup);
+
     // get available tics
     NetUpdate ();
 	
